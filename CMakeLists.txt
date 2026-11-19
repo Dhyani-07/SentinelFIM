@@ -8,10 +8,18 @@ find_package(OpenSSL REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
-add_executable(sentinel src/main.cpp)
+# Core logic as a library (tests will link to this in Phase 5)
+add_library(sentinel_core STATIC
+    src/hasher.cpp
+    src/scanner.cpp
+    src/baseline.cpp)
 
-target_include_directories(sentinel PRIVATE include)
-target_link_libraries(sentinel PRIVATE
+target_include_directories(sentinel_core PUBLIC include)
+target_link_libraries(sentinel_core PUBLIC
     OpenSSL::Crypto
     nlohmann_json::nlohmann_json
     spdlog::spdlog)
+
+# The command-line program
+add_executable(sentinel src/main.cpp)
+target_link_libraries(sentinel PRIVATE sentinel_core)
